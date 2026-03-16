@@ -1,0 +1,41 @@
+{
+  "name": "naws-console",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@aws-sdk/client-api-gateway": "^3",
+    "@aws-sdk/client-cloudformation": "^3",
+    "@aws-sdk/client-cloudwatch-logs": "^3",
+    "@aws-sdk/client-cognito-identity": "^3",
+    "@aws-sdk/client-cognito-identity-provider": "^3",
+    "@aws-sdk/client-dynamodb": "^3",
+    "@aws-sdk/client-ec2": "^3",
+    "@aws-sdk/client-eventbridge": "^3",
+    "@aws-sdk/client-guardduty": "^3",
+    "@aws-sdk/client-iam": "^3",
+    "@aws-sdk/client-kms": "^3",
+    "@aws-sdk/client-lambda": "^3",
+    "@aws-sdk/client-s3": "^3",
+    "@aws-sdk/client-secrets-manager": "^3",
+    "@aws-sdk/client-ssm": "^3",
+    "@aws-sdk/client-wafv2": "^3",
+    "@cloudscape-design/collection-hooks": "^1",
+    "@cloudscape-design/components": "^3",
+    "@cloudscape-design/global-styles": "^1",
+    "react": "^19",
+    "react-dom": "^19",
+    "react-router-dom": "^7"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6",
+    "typescript": "^5",
+    "vite": "^8"
+  }
+}

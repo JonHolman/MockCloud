@@ -1,0 +1,92 @@
+#!/usr/bin/env node
+import { Command } from 'commander';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
+import { existsSync, readFileSync, statSync, unlinkSync } from 'node:fs';
+import { REGION } from './config.js';
+import { startServer, PID_FILE } from './server.js';
+import { setVerbose } from './util/logger.js';
+import { clearAllState } from './state/store.js';
+import type { ServerConfig } from './types.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export function run(argv: string[]): void {
+  const program = new Command();
+
+  program
+    .name('naws')
+    .description('Local AWS replacement with mock API backends')
+    .version('0.1.0');
+
+  program
+    .command('serve', { isDefault: true })
+    .description('Start the NAWS server')
+    .option('--port <n>', 'Port to listen on', '4444')
+    .option('--region <region>', 'AWS region to simulate', 'us-east-1')
+    .option('--verbose', 'Enable verbose logging', false)
+    .action(async (opts) => {
+      const config: ServerConfig = {
+        port: parseInt(opts.port, 10),
+        region: opts.region,
+        verbose: opts.verbose,
+      };
+
+      setVerbose(config.verbose);
+
+      const consoleDir = resolve(__dirname, '..', 'console');
+      const distIndex = resolve(consoleDir, 'dist', 'index.html');
+      const srcDir = resolve(consoleDir, 'src');
+      const needsBuild = !existsSync(distIndex) ||
+        statSync(srcDir).mtimeMs > statSync(distIndex).mtimeMs;
+      if (needsBuild) {
+        console.log('Building console...');
+        execSync('yarn build', { cwd: consoleDir, stdio: 'inherit' });
+      }
+
+      await startServer(config);
+    });
+
+  program
+    .command('clear')
+    .description('Clear all persisted state')
+    .action(async () => {
+      await clearAllState();
+      console.log('State cleared.');
+    });
+
+  program
+    .command('stop')
+    .description('Stop a running NAWS server')
+    .action(() => {
+      if (!existsSync(PID_FILE)) {
+        console.log('No running server found.');
+        return;
+      }
+      const pid = parseInt(readFileSync(PID_FILE, 'utf-8').trim(), 10);
+      try {
+        process.kill(pid, 'SIGTERM');
+        console.log(`Stopped NAWS server (PID ${pid}).`);
+      } catch {
+        console.log('Server was not running.');
+      }
+      try { unlinkSync(PID_FILE); } catch {}
+    });
+
+  program
+    .command('env')
+    .description('Print AWS environment variables for NAWS')
+    .option('--port <n>', 'Port NAWS listens on', '4444')
+    .action((opts) => {
+      const port = opts.port;
+      console.log(`export AWS_ENDPOINT_URL=http://localhost:${port}`);
+      console.log('export AWS_ACCESS_KEY_ID=naws');
+      console.log('export AWS_SECRET_ACCESS_KEY=naws');
+      console.log(`export AWS_DEFAULT_REGION=${REGION}`);
+    });
+
+  program.parse(argv);
+}
+
+run(process.argv);
