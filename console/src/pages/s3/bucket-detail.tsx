@@ -221,6 +221,17 @@ export default function BucketDetail() {
     }
   };
 
+  const downloadObject = async (key: string) => {
+    const res = await s3.send(new GetObjectCommand({ Bucket: bucketName, Key: key }));
+    const blob = await new Response(res.Body as ReadableStream).blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = key.split('/').pop() || key;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleView = async (key: string) => {
     setViewKey(key);
     setViewBody('');
@@ -377,9 +388,12 @@ export default function BucketDetail() {
                 header: 'Actions',
                 cell: (item) =>
                   item.isFolder ? null : (
-                    <Button variant="inline-link" onClick={() => setDeleteKey(item.key)}>
-                      Delete
-                    </Button>
+                    <SpaceBetween direction="horizontal" size="xs">
+                      <Button variant="icon" iconName="download" onClick={() => downloadObject(item.key)} />
+                      <Button variant="inline-link" onClick={() => setDeleteKey(item.key)}>
+                        Delete
+                      </Button>
+                    </SpaceBetween>
                   ),
               },
             ]}
