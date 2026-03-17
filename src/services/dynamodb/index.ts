@@ -1,5 +1,4 @@
-import { defineMockService } from '../service.js';
-import type { ParsedApiRequest, ApiResponse } from '../../types.js';
+import type { MockServiceDefinition, ParsedApiRequest, ApiResponse } from '../../types.js';
 import { getDynamoLocalPort } from './local.js';
 import { getBaseUrl } from '../../server-url.js';
 
@@ -37,7 +36,7 @@ async function proxy(req: ParsedApiRequest): Promise<ApiResponse> {
   };
 }
 
-export const dynamodbService = defineMockService({
+export const dynamodbService: MockServiceDefinition = {
   name: 'dynamodb',
   hostPatterns: ['dynamodb.*.amazonaws.com'],
   protocol: 'json',
@@ -47,4 +46,4 @@ export const dynamodbService = defineMockService({
     DescribeEndpoints: () => describeEndpoints(),
     _default: proxy,
   },
-});
+};

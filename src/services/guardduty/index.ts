@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import { defineMockService } from '../service.js';
+import type { MockServiceDefinition } from '../../types.js';
 import { jsonAmz11 as json } from '../response.js';
 import { PersistentMap } from '../../state/store.js';
 import { REGION, ACCOUNT_ID } from '../../config.js';
 
 export const malwareProtectionPlans = new PersistentMap<string, { MalwareProtectionPlanId: string; Arn: string; Role?: string; ProtectedResource?: unknown }>('guardduty-malware-protection-plans');
 
-export const guardDutyService = defineMockService({
+export const guardDutyService: MockServiceDefinition = {
   name: 'guardduty',
   hostPatterns: ['guardduty.*.amazonaws.com'],
   protocol: 'rest-json',
@@ -49,4 +49,4 @@ export const guardDutyService = defineMockService({
       return json({});
     },
   },
-});
+};

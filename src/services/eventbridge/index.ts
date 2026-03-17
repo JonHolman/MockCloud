@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { defineMockService } from '../service.js';
-import type { ApiResponse, ParsedApiRequest } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse, ParsedApiRequest } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import { jsonAmz11 as json, errorAmz11 as error, ServiceError } from '../response.js';
 import { REGION, ACCOUNT_ID } from '../../config.js';
@@ -225,7 +224,7 @@ function ListTagsForResource(req: ParsedApiRequest): ApiResponse {
   return json({ Tags: tagList });
 }
 
-export const eventbridgeService = defineMockService({
+export const eventbridgeService: MockServiceDefinition = {
   name: 'eventbridge',
   hostPatterns: ['events.*.amazonaws.com'],
   protocol: 'json',
@@ -250,4 +249,4 @@ export const eventbridgeService = defineMockService({
     ListApiDestinations: () => json({ ApiDestinations: [] }),
     _default: () => json({}),
   },
-});
+};

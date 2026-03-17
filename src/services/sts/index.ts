@@ -1,5 +1,4 @@
-import { defineMockService } from '../service.js';
-import type { ApiResponse } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse } from '../../types.js';
 import { ACCOUNT_ID } from '../../config.js';
 
 const xml = (body: string): ApiResponse => ({
@@ -8,7 +7,7 @@ const xml = (body: string): ApiResponse => ({
   body,
 });
 
-export const stsService = defineMockService({
+export const stsService: MockServiceDefinition = {
   name: 'sts',
   hostPatterns: ['sts.*.amazonaws.com', 'sts.amazonaws.com'],
   protocol: 'query',
@@ -59,4 +58,4 @@ export const stsService = defineMockService({
   <ResponseMetadata><RequestId>00000000-0000-0000-0000-000000000000</RequestId></ResponseMetadata>
 </Response>`),
   },
-});
+};

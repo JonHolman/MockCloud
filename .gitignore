@@ -2,7 +2,6 @@ node_modules/
 dist/
 data/
 .dynamodb-local/
-dynamodb-local-metadata.json
 
 .DS_Store
 .env
@@ -24,3 +23,4 @@ coverage/
 .pnp.*
 **/install-state.gz
 **/test-results/
+demo-video/

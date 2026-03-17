@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { defineMockService } from '../service.js';
-import type { ApiResponse, ParsedApiRequest } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse, ParsedApiRequest } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import { jsonAmz11 as json, errorAmz11 as error } from '../response.js';
 import { REGION } from '../../config.js';
@@ -142,7 +141,7 @@ function SetIdentityPoolRoles(req: ParsedApiRequest): ApiResponse {
   return json({});
 }
 
-export const cognitoIdentityService = defineMockService({
+export const cognitoIdentityService: MockServiceDefinition = {
   name: 'cognito-identity',
   hostPatterns: ['cognito-identity.*.amazonaws.com'],
   protocol: 'json',
@@ -160,4 +159,4 @@ export const cognitoIdentityService = defineMockService({
     SetIdentityPoolRoles,
     _default: () => json({}),
   },
-});
+};

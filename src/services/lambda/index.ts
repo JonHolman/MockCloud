@@ -1,4 +1,4 @@
-import { defineMockService } from '../service.js';
+import type { MockServiceDefinition } from '../../types.js';
 import { json } from './state.js';
 import {
   handleCreateFunction,
@@ -118,7 +118,7 @@ async function routeRequest(req: import('../../types.js').ParsedApiRequest): Pro
   return json({});
 }
 
-export const lambdaService = defineMockService({
+export const lambdaService: MockServiceDefinition = {
   name: 'lambda',
   hostPatterns: ['lambda.*.amazonaws.com'],
   protocol: 'json',
@@ -129,4 +129,4 @@ export const lambdaService = defineMockService({
     ListFunctions20150331: () => listFunctions(),
     _default: (req) => routeRequest(req),
   },
-});
+};

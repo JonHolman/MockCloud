@@ -39,8 +39,6 @@
   "dependencies": {
     "@aws-sdk/client-cloudwatch-logs": "^3.1009.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.1009.0",
-    "@aws-sdk/client-firehose": "^3.1009.0",
-    "@aws-sdk/client-kinesis": "^3.1009.0",
     "@aws-sdk/lib-dynamodb": "^3.1009.0",
     "commander": "^14.0.3",
     "jszip": "^3.10.1",

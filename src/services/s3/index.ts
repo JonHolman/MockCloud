@@ -1,6 +1,5 @@
 import { PersistentMap } from '../../state/store.js';
-import { defineMockService } from '../service.js';
-import type { ApiResponse, ParsedApiRequest } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse, ParsedApiRequest } from '../../types.js';
 import {
   xmlResponse,
   errorResponse,
@@ -462,7 +461,7 @@ function routeRequest(req: ParsedApiRequest): ApiResponse {
   return xmlResponse('', 200);
 }
 
-export const s3Service = defineMockService({
+export const s3Service: MockServiceDefinition = {
   name: 's3',
   hostPatterns: ['s3.*.amazonaws.com', 's3.amazonaws.com', '*.s3.*.amazonaws.com', '*.s3.amazonaws.com'],
   protocol: 'rest-xml',
@@ -470,4 +469,4 @@ export const s3Service = defineMockService({
   handlers: {
     _default: (req) => routeRequest(req),
   },
-});
+};

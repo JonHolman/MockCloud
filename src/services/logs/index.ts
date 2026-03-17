@@ -1,5 +1,4 @@
-import { defineMockService } from '../service.js';
-import type { ApiResponse, ParsedApiRequest } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse, ParsedApiRequest } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import { jsonAmz11 as json, errorAmz11 as error, ServiceError } from '../response.js';
 import { REGION, ACCOUNT_ID } from '../../config.js';
@@ -340,7 +339,7 @@ function ListTagsForResource(req: ParsedApiRequest): ApiResponse {
   return json({ tags: group.tags });
 }
 
-export const logsService = defineMockService({
+export const logsService: MockServiceDefinition = {
   name: 'logs',
   hostPatterns: ['logs.*.amazonaws.com'],
   protocol: 'json',
@@ -368,4 +367,4 @@ export const logsService = defineMockService({
     DescribeQueryDefinitions,
     _default: () => json({}),
   },
-});
+};

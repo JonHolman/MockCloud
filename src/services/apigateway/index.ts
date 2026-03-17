@@ -1,6 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { defineMockService } from '../service.js';
-import type { ApiResponse, ParsedApiRequest } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse, ParsedApiRequest } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import { json, ServiceError } from '../response.js';
 import type {
@@ -335,7 +334,7 @@ function deleteGatewayResponse(apiId: string, responseType: string): ApiResponse
   return json({}, 202);
 }
 
-export const apiGatewayService = defineMockService({
+export const apiGatewayService: MockServiceDefinition = {
   name: 'apigateway',
   hostPatterns: ['apigateway.*.amazonaws.com'],
   protocol: 'rest-json',
@@ -345,4 +344,4 @@ export const apiGatewayService = defineMockService({
     GetAccount: () => json({ cloudwatchRoleArn: apiGatewayAccount.cloudwatchRoleArn || '', throttleSettings: { burstLimit: 5000, rateLimit: 10000 } }),
     _default: route,
   },
-});
+};

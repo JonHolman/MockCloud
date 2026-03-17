@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { defineMockService } from '../service.js';
+import type { MockServiceDefinition } from '../../types.js';
 import { jsonAmz11 as json, ServiceError } from '../response.js';
 import { PersistentMap } from '../../state/store.js';
 import { REGION, ACCOUNT_ID } from '../../config.js';
@@ -45,7 +45,7 @@ export function createWebAcl(
   return acl;
 }
 
-export const wafv2Service = defineMockService({
+export const wafv2Service: MockServiceDefinition = {
   name: 'wafv2',
   hostPatterns: ['wafv2.*.amazonaws.com'],
   protocol: 'json',
@@ -185,4 +185,4 @@ export const wafv2Service = defineMockService({
 
     _default: () => json({}),
   },
-});
+};

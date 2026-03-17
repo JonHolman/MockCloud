@@ -1,5 +1,4 @@
-import { defineMockService } from '../service.js';
-import type { ApiResponse } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import {
   buildDescribeVpcsXml,
@@ -143,7 +142,7 @@ function buildDescribeVpcEndpointsXml(body: Record<string, unknown>): string {
   return `<DescribeVpcEndpointsResponse xmlns="${NS}">${REQ_ID}<vpcEndpointSet>${items}</vpcEndpointSet></DescribeVpcEndpointsResponse>`;
 }
 
-export const ec2Service = defineMockService({
+export const ec2Service: MockServiceDefinition = {
   name: 'ec2',
   hostPatterns: ['ec2.*.amazonaws.com'],
   protocol: 'query',
@@ -231,4 +230,4 @@ export const ec2Service = defineMockService({
     _default: () =>
       xml(`<?xml version="1.0" encoding="UTF-8"?>\n<Response xmlns="${NS}">${REQ_ID}</Response>`),
   },
-});
+};

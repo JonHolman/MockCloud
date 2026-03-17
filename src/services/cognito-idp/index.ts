@@ -1,6 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { defineMockService } from '../service.js';
-import type { ApiResponse, ParsedApiRequest } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse, ParsedApiRequest } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import { jsonAmz11 as json, errorAmz11 as error, ServiceError } from '../response.js';
 import {
@@ -426,7 +425,7 @@ function DeleteIdentityProvider(req: ParsedApiRequest): ApiResponse {
   return json({});
 }
 
-export const cognitoIdpService = defineMockService({
+export const cognitoIdpService: MockServiceDefinition = {
   name: 'cognito-idp',
   hostPatterns: ['cognito-idp.*.amazonaws.com'],
   protocol: 'json',
@@ -461,4 +460,4 @@ export const cognitoIdpService = defineMockService({
     DeleteIdentityProvider,
     _default: () => json({}),
   },
-});
+};

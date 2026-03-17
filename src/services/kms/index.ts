@@ -1,6 +1,5 @@
 import { randomUUID, randomBytes } from 'node:crypto';
-import { defineMockService } from '../service.js';
-import type { ApiResponse, ParsedApiRequest } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse, ParsedApiRequest } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import { jsonAmz11 as json, errorAmz11 as error, ServiceError } from '../response.js';
 import { REGION, ACCOUNT_ID } from '../../config.js';
@@ -264,7 +263,7 @@ function ListResourceTags(req: ParsedApiRequest): ApiResponse {
   return json({ Tags: [], Truncated: false });
 }
 
-export const kmsService = defineMockService({
+export const kmsService: MockServiceDefinition = {
   name: 'kms',
   hostPatterns: ['kms.*.amazonaws.com'],
   protocol: 'json',
@@ -288,4 +287,4 @@ export const kmsService = defineMockService({
     ListResourceTags,
     _default: () => json({}),
   },
-});
+};

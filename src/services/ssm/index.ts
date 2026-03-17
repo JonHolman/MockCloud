@@ -1,5 +1,4 @@
-import { defineMockService } from '../service.js';
-import type { ApiResponse, ParsedApiRequest } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse, ParsedApiRequest } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import { jsonAmz11 as json, errorAmz11 as error, ServiceError } from '../response.js';
 import { REGION, ACCOUNT_ID } from '../../config.js';
@@ -173,7 +172,7 @@ function DescribeParameters(req: ParsedApiRequest): ApiResponse {
   });
 }
 
-export const ssmService = defineMockService({
+export const ssmService: MockServiceDefinition = {
   name: 'ssm',
   hostPatterns: ['ssm.*.amazonaws.com'],
   protocol: 'json',
@@ -188,4 +187,4 @@ export const ssmService = defineMockService({
     DescribeParameters,
     _default: () => json({}),
   },
-});
+};

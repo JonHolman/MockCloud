@@ -1,4 +1,4 @@
-import { defineMockService } from '../service.js';
+import type { MockServiceDefinition } from '../../types.js';
 import { xml } from './state.js';
 import { registerProvider } from './engine/provisioner.js';
 import { s3BucketProvider } from './engine/providers/s3-bucket.js';
@@ -88,7 +88,7 @@ registerProvider(ec2VpcEndpointProvider);
 registerProvider(logsResourcePolicyProvider);
 registerProvider(s3BucketNotificationsCustomProvider);
 
-export const cloudformationService = defineMockService({
+export const cloudformationService: MockServiceDefinition = {
   name: 'cloudformation',
   hostPatterns: ['cloudformation.*.amazonaws.com'],
   protocol: 'query',
@@ -126,4 +126,4 @@ export const cloudformationService = defineMockService({
     _default: () =>
       xml('Response', ''),
   },
-});
+};

@@ -1,5 +1,4 @@
-import { defineMockService } from '../service.js';
-import type { ApiResponse } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse } from '../../types.js';
 
 const NS = 'http://monitoring.amazonaws.com/doc/2010-08-01/';
 const REQUEST_ID = '00000000-0000-0000-0000-000000000000';
@@ -12,7 +11,7 @@ function xml(action: string, resultBody: string): ApiResponse {
   };
 }
 
-export const monitoringService = defineMockService({
+export const monitoringService: MockServiceDefinition = {
   name: 'monitoring',
   hostPatterns: ['monitoring.*.amazonaws.com'],
   protocol: 'query',
@@ -37,4 +36,4 @@ export const monitoringService = defineMockService({
     ListTagsForResource: () => xml('ListTagsForResource', '<Tags/>'),
     _default: (req) => xml(req.action || 'Response', ''),
   },
-});
+};

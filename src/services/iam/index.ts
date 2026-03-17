@@ -1,4 +1,4 @@
-import { defineMockService } from '../service.js';
+import type { MockServiceDefinition } from '../../types.js';
 import { xml, iamError, NS, META, getUsersStore, getOidcProvidersStore, createOidcProvider, generateUserId, userArn } from './types.js';
 import type { StoredUser } from './types.js';
 import { ServiceError } from '../response.js';
@@ -30,7 +30,7 @@ function userXml(u: StoredUser): string {
     </User>`;
 }
 
-export const iamService = defineMockService({
+export const iamService: MockServiceDefinition = {
   name: 'iam',
   hostPatterns: ['iam.amazonaws.com'],
   protocol: 'query',
@@ -236,4 +236,4 @@ export const iamService = defineMockService({
       return xml(`<Response xmlns="${NS}">${META}</Response>`);
     },
   },
-});
+};

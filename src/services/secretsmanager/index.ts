@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { defineMockService } from '../service.js';
-import type { ApiResponse, ParsedApiRequest } from '../../types.js';
+import type { MockServiceDefinition, ApiResponse, ParsedApiRequest } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import { jsonAmz11 as json, errorAmz11 as error } from '../response.js';
 import { REGION, ACCOUNT_ID } from '../../config.js';
@@ -252,7 +251,7 @@ function ListSecretVersionIds(req: ParsedApiRequest): ApiResponse {
   return json({ ARN: s.ARN, Name: s.Name, Versions: versions });
 }
 
-export const secretsmanagerService = defineMockService({
+export const secretsmanagerService: MockServiceDefinition = {
   name: 'secretsmanager',
   hostPatterns: ['secretsmanager.*.amazonaws.com'],
   protocol: 'json',
@@ -272,4 +271,4 @@ export const secretsmanagerService = defineMockService({
     ListSecretVersionIds,
     _default: () => json({}),
   },
-});
+};
