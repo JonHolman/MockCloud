@@ -38,6 +38,8 @@ import { iamOidcProviderProvider } from './engine/providers/iam-oidc-provider.js
 import { ec2VpcEndpointProvider } from './engine/providers/ec2-vpc-endpoint.js';
 import { logsResourcePolicyProvider } from './engine/providers/logs-resource-policy.js';
 import { s3BucketNotificationsCustomProvider } from './engine/providers/s3-bucket-notifications-custom.js';
+import { secretsmanagerSecretProvider } from './engine/providers/secretsmanager-secret.js';
+import { iamManagedPolicyProvider } from './engine/providers/iam-managed-policy.js';
 import {
   createStack, updateStack, deleteStack,
   describeStacks, listStacks,
@@ -87,6 +89,8 @@ registerProvider(iamOidcProviderProvider);
 registerProvider(ec2VpcEndpointProvider);
 registerProvider(logsResourcePolicyProvider);
 registerProvider(s3BucketNotificationsCustomProvider);
+registerProvider(secretsmanagerSecretProvider);
+registerProvider(iamManagedPolicyProvider);
 
 export const cloudformationService: MockServiceDefinition = {
   name: 'cloudformation',

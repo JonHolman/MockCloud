@@ -55,15 +55,16 @@ export async function startServer(config: ServerConfig): Promise<void> {
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 
+  await startDynamoLocal();
+
   return new Promise<void>((resolve) => {
-    server.listen(config.port, async () => {
+    server.listen(config.port, () => {
       const serviceCount = getAllMockServices().length;
       info(`MockCloud Server running at http://localhost:${config.port}`);
       info(`Region: ${config.region}, ${serviceCount} services`);
       info(`  AWS CLI: aws --profile mockcloud <service> <command>`);
       writeFileSync(PID_FILE, String(process.pid));
       resolve();
-      await startDynamoLocal();
     });
   });
 }

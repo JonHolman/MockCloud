@@ -1,35 +1,24 @@
 import type { ResourceProvider, ProvisionResult } from '../types.js';
-import { getOidcProvidersStore, createOidcProvider } from '../../../iam/types.js';
+import { oidcProviderArn, logOidcNoOp } from '../../../iam/types.js';
 
 export const iamOidcProviderProvider: ResourceProvider = {
   type: 'AWS::IAM::OIDCProvider',
   create(_logicalId: string, properties: Record<string, unknown>): ProvisionResult {
-    const provider = createOidcProvider(
-      properties.Url as string,
-      (properties.ClientIdList as string[]) ?? [],
-      (properties.ThumbprintList as string[]) ?? [],
-    );
+    const url = properties.Url as string;
+    const arn = oidcProviderArn(url);
+    logOidcNoOp(url);
 
     return {
-      physicalId: provider.Arn,
-      attributes: { Arn: provider.Arn },
+      physicalId: arn,
+      attributes: { Arn: arn },
     };
   },
   update(physicalId: string, _logicalId: string, properties: Record<string, unknown>): ProvisionResult {
-    const store = getOidcProvidersStore();
-    const existing = store.get(physicalId);
-    if (existing) {
-      existing.ClientIDList = (properties.ClientIdList as string[]) ?? existing.ClientIDList;
-      existing.ThumbprintList = (properties.ThumbprintList as string[]) ?? existing.ThumbprintList;
-      store.set(physicalId, existing);
-    }
-
+    logOidcNoOp(properties.Url as string);
     return {
       physicalId,
       attributes: { Arn: physicalId },
     };
   },
-  delete(physicalId: string): void {
-    getOidcProvidersStore().delete(physicalId);
-  },
+  delete(_physicalId: string): void {},
 };

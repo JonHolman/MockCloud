@@ -8,15 +8,18 @@ describe('MockCloud e2e smoke', () => {
     expect(endpoint).toBeTruthy();
 
     const rootResponse = await fetch(`${endpoint}/`, { redirect: 'manual' });
-    expect(rootResponse.status).toBe(302);
-    expect(rootResponse.headers.get('location')).toBe('/console/home');
+    expect(rootResponse.status).toBe(200);
+    expect(rootResponse.headers.get('content-type')).toContain('text/html');
+    const rootHtml = await rootResponse.text();
+    expect(rootHtml).toContain('<title>MockCloud Console</title>');
+    expect(rootHtml).toContain('<div id="root"></div>');
+    expect(rootHtml).toContain('src="/assets/');
 
-    const consoleResponse = await fetch(`${endpoint}/console/home`);
-    expect(consoleResponse.status).toBe(200);
-    const html = await consoleResponse.text();
-    expect(html).toContain('window.__MOCKCLOUD_LOCAL__ = true');
-    expect(html).toContain('<div id="app"></div>');
-    expect(html).not.toContain('http://localhost:4444');
+    const clientRouteResponse = await fetch(`${endpoint}/cloudformation`, { redirect: 'manual' });
+    expect(clientRouteResponse.status).toBe(200);
+    expect(clientRouteResponse.headers.get('content-type')).toContain('text/html');
+    const clientRouteHtml = await clientRouteResponse.text();
+    expect(clientRouteHtml).toContain('<div id="root"></div>');
 
     const blockedResponse = await fetch(`${endpoint}/health`);
     expect(blockedResponse.status).toBe(204);

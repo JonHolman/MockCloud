@@ -36,7 +36,7 @@ function buildInvocationEnv(fn: StoredFunction, tempDir: string): NodeJS.Process
     LAMBDA_TASK_ROOT: tempDir,
     _HANDLER: fn.handler,
     // Fallback module resolution to mockcloud-server's packages (AWS SDK, etc.)
-    NODE_PATH: serverNodeModules + (process.env.NODE_PATH ? `:${process.env.NODE_PATH}` : ''),
+    NODE_PATH: tempDir + ':' + serverNodeModules + (process.env.NODE_PATH ? `:${process.env.NODE_PATH}` : ''),
   };
 }
 

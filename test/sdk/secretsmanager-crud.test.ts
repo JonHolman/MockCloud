@@ -102,6 +102,37 @@ describe('SecretsManager CRUD', () => {
     }
   });
 
+  test('UpdateSecret with only Description updates metadata without creating a new version', async () => {
+    const secretName = `test-description-secret-${Date.now()}`;
+
+    const createResult = await client.send(new CreateSecretCommand({
+      Name: secretName,
+      SecretString: 'original',
+      Description: 'before',
+    }));
+
+    try {
+      const beforeValue = await client.send(new GetSecretValueCommand({ SecretId: secretName }));
+
+      const updateResult = await client.send(new UpdateSecretCommand({
+        SecretId: secretName,
+        Description: 'after',
+      }));
+
+      const afterValue = await client.send(new GetSecretValueCommand({ SecretId: secretName }));
+      const afterDescribe = await client.send(new DescribeSecretCommand({ SecretId: secretName }));
+
+      expect(updateResult.Name).toBe(secretName);
+      expect(updateResult.VersionId).toBeUndefined();
+      expect(afterValue.VersionId).toBe(beforeValue.VersionId);
+      expect(afterValue.VersionId).toBe(createResult.VersionId);
+      expect(afterDescribe.Description).toBe('after');
+      expect(Object.keys(afterDescribe.VersionIdsToStages ?? {})).toHaveLength(1);
+    } finally {
+      await client.send(new DeleteSecretCommand({ SecretId: secretName }));
+    }
+  });
+
   test('UpdateSecret on nonexistent secret returns ResourceNotFoundException', async () => {
     try {
       await client.send(new UpdateSecretCommand({

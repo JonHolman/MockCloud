@@ -3,6 +3,7 @@ import type { ApiResponse } from '../../types.js';
 import { PersistentMap } from '../../state/store.js';
 import { ServiceError } from '../response.js';
 import { ACCOUNT_ID } from '../../config.js';
+import { info } from '../../util/logger.js';
 
 function isoNow(): string {
   return new Date().toISOString();
@@ -23,13 +24,6 @@ export interface StoredPolicy extends Definite<Policy, 'PolicyName' | 'PolicyId'
 
 export interface StoredUser extends Definite<User, 'Path' | 'UserName' | 'UserId' | 'Arn'> {
   CreateDate: string;
-}
-
-export interface StoredOidcProvider {
-  Arn: string;
-  Url: string;
-  ClientIDList: string[];
-  ThumbprintList: string[];
 }
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -62,6 +56,17 @@ export function policyArn(path: string, name: string): string {
   return `arn:aws:iam::${ACCOUNT_ID}:policy/${p}${name}`;
 }
 
+export function nextPolicyVersionId(versions: Map<string, string>): string {
+  let maxVersion = 0;
+  for (const versionId of versions.keys()) {
+    const match = /^v(\d+)$/.exec(versionId);
+    if (!match) continue;
+    maxVersion = Math.max(maxVersion, Number(match[1]));
+  }
+  // Keep version IDs monotonic even if a version is ever removed later.
+  return `v${maxVersion + 1}`;
+}
+
 export function userArn(name: string): string {
   return `arn:aws:iam::${ACCOUNT_ID}:user/${name}`;
 }
@@ -84,27 +89,21 @@ export function iamError(code: string, message: string, status = 400): ApiRespon
 const roles = new PersistentMap<string, StoredRole>('iam-roles');
 const policies = new PersistentMap<string, StoredPolicy>('iam-policies');
 const users = new PersistentMap<string, StoredUser>('iam-users');
-const oidcProviders = new PersistentMap<string, StoredOidcProvider>('iam-oidc-providers');
 
 export function getRolesStore(): Map<string, StoredRole> { return roles; }
 export function getPoliciesStore(): Map<string, StoredPolicy> { return policies; }
 export function getUsersStore(): Map<string, StoredUser> { return users; }
-export function getOidcProvidersStore(): Map<string, StoredOidcProvider> { return oidcProviders; }
 
-export function createOidcProvider(url: string, clientIdList: string[], thumbprintList: string[]): StoredOidcProvider {
-  const normalizedUrl = url.replace(/^https?:\/\//, '');
-  const arn = `arn:aws:iam::${ACCOUNT_ID}:oidc-provider/${normalizedUrl}`;
-  if (oidcProviders.has(arn)) {
-    throw new ServiceError('EntityAlreadyExists', `An OIDC provider already exists with url ${normalizedUrl}`, 409);
-  }
-  const provider: StoredOidcProvider = {
-    Arn: arn,
-    Url: normalizedUrl,
-    ClientIDList: clientIdList,
-    ThumbprintList: thumbprintList,
-  };
-  oidcProviders.set(arn, provider);
-  return provider;
+function normalizeOidcUrl(url: string): string {
+  return url.replace(/^https?:\/\//, '');
+}
+
+export function oidcProviderArn(url: string): string {
+  return `arn:aws:iam::${ACCOUNT_ID}:oidc-provider/${normalizeOidcUrl(url)}`;
+}
+
+export function logOidcNoOp(url: string): void {
+  info(`[IAM] OIDC provider '${url}' is a no-op in MockCloud`);
 }
 
 export interface CreateRoleParams {
@@ -142,4 +141,3 @@ export function deleteRole(roleName: string): void {
   }
   roles.delete(roleName);
 }
-

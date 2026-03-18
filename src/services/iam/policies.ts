@@ -3,6 +3,7 @@ import {
   type StoredPolicy,
   getPoliciesStore,
   generatePolicyId,
+  nextPolicyVersionId,
   policyArn,
   xml,
   iamError,
@@ -126,8 +127,7 @@ export const CreatePolicyVersion: ApiHandler = (req) => {
   if (!policy) return iamError('NoSuchEntity', `Policy ${arn} not found.`, 404);
 
   const doc = str(req.body['PolicyDocument']);
-  const versionNum = policy.versions.size + 1;
-  const versionId = `v${versionNum}`;
+  const versionId = nextPolicyVersionId(policy.versions);
   policy.versions.set(versionId, doc);
 
   const setAsDefault = str(req.body['SetAsDefault']);

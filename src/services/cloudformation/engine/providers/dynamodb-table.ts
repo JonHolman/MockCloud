@@ -13,30 +13,37 @@ async function dynamoFetch(action: string, body: Record<string, unknown>): Promi
     },
     body: JSON.stringify(body),
   });
-  return res.json() as Promise<Record<string, unknown>>;
+  const json = await res.json() as Record<string, unknown>;
+  if (!res.ok) {
+    const msg = (json.__type as string ?? 'DynamoDBError') + ': ' + (json.message ?? json.Message ?? JSON.stringify(json));
+    throw new Error(msg);
+  }
+  return json;
 }
 
 export const dynamodbTableProvider: ResourceProvider = {
   type: 'AWS::DynamoDB::Table',
   async create(logicalId: string, properties: Record<string, unknown>, context: ProvisionContext): Promise<ProvisionResult> {
     const tableName = (properties.TableName as string) ?? `${context.stackName}-${logicalId}`;
-    const keySchema = (properties.KeySchema as Array<{ AttributeName: string; KeyType: string }>) ?? [];
-    const attributeDefinitions = (properties.AttributeDefinitions as Array<{ AttributeName: string; AttributeType: string }>) ?? [];
-    const billingMode = (properties.BillingMode as string) ?? 'PROVISIONED';
 
-    const params: Record<string, unknown> = {
-      TableName: tableName,
-      KeySchema: keySchema,
-      AttributeDefinitions: attributeDefinitions,
-      BillingMode: billingMode,
-    };
+    // Only pass properties that are valid CreateTable parameters.
+    // CloudFormation properties like PointInTimeRecoverySpecification and
+    // TimeToLiveSpecification are separate DynamoDB API calls, not CreateTable params.
+    const createTableKeys = [
+      'AttributeDefinitions', 'BillingMode', 'DeletionProtectionEnabled',
+      'GlobalSecondaryIndexes', 'KeySchema', 'LocalSecondaryIndexes',
+      'ProvisionedThroughput', 'SSESpecification', 'StreamSpecification',
+      'TableClass', 'Tags',
+    ];
+    const params: Record<string, unknown> = { TableName: tableName };
+    for (const key of createTableKeys) {
+      if (properties[key] !== undefined) params[key] = properties[key];
+    }
 
-    if (billingMode === 'PROVISIONED') {
-      const pt = properties.ProvisionedThroughput as Record<string, unknown> | undefined;
-      params.ProvisionedThroughput = {
-        ReadCapacityUnits: Number(pt?.ReadCapacityUnits) || 5,
-        WriteCapacityUnits: Number(pt?.WriteCapacityUnits) || 5,
-      };
+    // DynamoDB Local requires StreamEnabled when StreamViewType is set
+    const stream = params.StreamSpecification as Record<string, unknown> | undefined;
+    if (stream?.StreamViewType && stream.StreamEnabled === undefined) {
+      stream.StreamEnabled = true;
     }
 
     await dynamoFetch('CreateTable', params);

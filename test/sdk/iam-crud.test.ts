@@ -16,6 +16,7 @@ import {
   ListPoliciesCommand,
   CreateUserCommand,
   ListUsersCommand,
+  CreateOpenIDConnectProviderCommand,
 } from '@aws-sdk/client-iam';
 import { createIAMClient } from './client-factory.js';
 
@@ -191,5 +192,16 @@ describe('IAM CRUD', () => {
     } catch (err: any) {
       expect(err.name).toBe('NoSuchEntityException');
     }
+  });
+
+  test('OIDC provider creation is a no-op', async () => {
+    const createResult = await client.send(new CreateOpenIDConnectProviderCommand({
+      Url: 'https://token.actions.githubusercontent.com',
+      ClientIDList: ['sts.amazonaws.com'],
+      ThumbprintList: ['6938fd4d98bab03faadb97b34396831e3780aea1'],
+    }));
+    expect(createResult.OpenIDConnectProviderArn).toBe(
+      'arn:aws:iam::000000000000:oidc-provider/token.actions.githubusercontent.com',
+    );
   });
 });

@@ -1,7 +1,6 @@
 import type { MockServiceDefinition } from '../../types.js';
-import { xml, iamError, NS, META, getUsersStore, getOidcProvidersStore, createOidcProvider, generateUserId, userArn } from './types.js';
+import { xml, iamError, NS, META, getUsersStore, oidcProviderArn, generateUserId, userArn, logOidcNoOp } from './types.js';
 import type { StoredUser } from './types.js';
-import { ServiceError } from '../response.js';
 import {
   CreateRole, GetRole, ListRoles, DeleteRole,
   PutRolePolicy, GetRolePolicy, DeleteRolePolicy, ListRolePolicies,
@@ -204,29 +203,11 @@ export const iamService: MockServiceDefinition = {
     CreateOpenIDConnectProvider: (req) => {
       const url = str(req.body['Url']);
       if (!url) return iamError('ValidationError', 'Url is required');
-      try {
-        const provider = createOidcProvider(
-          url,
-          (req.body['ClientIDList'] as string[]) ?? [],
-          (req.body['ThumbprintList'] as string[]) ?? [],
-        );
-        return xml(`<CreateOpenIDConnectProviderResponse xmlns="${NS}">
-  <CreateOpenIDConnectProviderResult><OpenIDConnectProviderArn>${provider.Arn}</OpenIDConnectProviderArn></CreateOpenIDConnectProviderResult>
+      logOidcNoOp(url);
+      return xml(`<CreateOpenIDConnectProviderResponse xmlns="${NS}">
+  <CreateOpenIDConnectProviderResult><OpenIDConnectProviderArn>${oidcProviderArn(url)}</OpenIDConnectProviderArn></CreateOpenIDConnectProviderResult>
   ${META}
 </CreateOpenIDConnectProviderResponse>`);
-      } catch (e) {
-        if (e instanceof ServiceError) return iamError(e.code, e.message, e.statusCode);
-        throw e;
-      }
-    },
-
-    ListOpenIDConnectProviders: () => {
-      const providers = getOidcProvidersStore();
-      const members = Array.from(providers.values()).map((p) => `<member><Arn>${p.Arn}</Arn></member>`).join('');
-      return xml(`<ListOpenIDConnectProvidersResponse xmlns="${NS}">
-  <ListOpenIDConnectProvidersResult><OpenIDConnectProviderList>${members}</OpenIDConnectProviderList></ListOpenIDConnectProvidersResult>
-  ${META}
-</ListOpenIDConnectProvidersResponse>`);
     },
 
     _default: (req) => {
