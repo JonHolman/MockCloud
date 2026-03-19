@@ -38,13 +38,14 @@ export async function runMdctApp(app: string): Promise<void> {
 
   rmSync(resolve(appDir, '.cdk'), { recursive: true, force: true });
 
+  const mockCloudCdk = resolve(mockCloudDir, 'node_modules', '.bin', 'cdk');
+
   await runAppCommand(
     'CDK Bootstrap',
-    `yarn cdk bootstrap aws://${ACCOUNT_ID}/${REGION} --template deployment/bootstrap-template.yaml --context stage=bootstrap`,
+    `${mockCloudCdk} bootstrap aws://${ACCOUNT_ID}/${REGION} --template deployment/bootstrap-template.yaml --context stage=bootstrap`,
     appDir,
   );
 
-  const mockCloudCdk = resolve(mockCloudDir, 'node_modules', '.bin', 'cdk');
   await runAppCommand(
     'MockCloud prereqs',
     `${mockCloudCdk} deploy --app "yarn tsx ${resolve(import.meta.dirname, 'mdct-prereqs.ts')}" --all`,
