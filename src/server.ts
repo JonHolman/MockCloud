@@ -1,4 +1,4 @@
-import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { createServer } from 'node:http';
 import { writeFileSync, readFileSync, unlinkSync, existsSync, mkdirSync } from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +11,7 @@ import { startDynamoLocal, stopDynamoLocal } from './services/dynamodb/local.js'
 import { getAllMockServices } from './services/registry.js';
 
 export const PID_FILE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../data/mockcloud.pid');
+const AMPLIFY_S3_PORT = 20005;
 
 export function stopServer(): boolean {
   if (!existsSync(PID_FILE)) {
@@ -27,6 +28,13 @@ export function stopServer(): boolean {
 }
 
 export async function startServer(config: ServerConfig): Promise<void> {
+  process.on('uncaughtException', (err) => {
+    info(`Uncaught exception: ${err instanceof Error ? err.stack ?? err.message : String(err)}`);
+  });
+  process.on('unhandledRejection', (reason) => {
+    info(`Unhandled rejection: ${reason instanceof Error ? reason.stack ?? reason.message : String(reason)}`);
+  });
+
   mkdirSync(path.dirname(PID_FILE), { recursive: true });
   if (existsSync(PID_FILE)) {
     const pid = parseInt(readFileSync(PID_FILE, 'utf-8').trim(), 10);
@@ -77,6 +85,21 @@ export async function startServer(config: ServerConfig): Promise<void> {
       info(`MockCloud Server running at http://localhost:${config.port}`);
       info(`Region: ${config.region}, ${serviceCount} services`);
       info(`  AWS CLI: aws --profile mockcloud <service> <command>`);
+
+      const s3Server = createServer((req, res) => {
+        handleRequest(req, res).catch((err) => {
+          const message = err instanceof Error ? err.message : String(err);
+          info(`S3 proxy error: ${message}`);
+          if (!res.headersSent) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Internal Server Error' }));
+          }
+        });
+      });
+      s3Server.listen(AMPLIFY_S3_PORT, () => {
+        info(`Amplify S3 endpoint at http://localhost:${AMPLIFY_S3_PORT}`);
+      });
+
       writeFileSync(PID_FILE, String(process.pid));
       resolve();
     });

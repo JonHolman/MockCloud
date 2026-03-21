@@ -52,7 +52,7 @@ export function createRouter(
     const pathname = url.pathname;
     debug(`${req.method} ${pathname}`);
 
-    applyCors(res);
+    applyCors(req, res);
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
@@ -86,7 +86,11 @@ export function createRouter(
       await handleApiGatewayRequest(req, res);
       return;
     }
-    if (hostHeader.endsWith('.amazonaws.com') || hostHeader.endsWith('.amazoncognito.com')) {
+    if (
+      hostHeader.endsWith('.amazonaws.com') ||
+      hostHeader.endsWith('.amazoncognito.com') ||
+      hostHeader.endsWith('.localhost')
+    ) {
       req.url = `/api/${hostHeader}${pathname}${url.search || ''}`;
       await handleApiRequest(req, res, `/api/${hostHeader}${pathname}`, resolve);
       return;

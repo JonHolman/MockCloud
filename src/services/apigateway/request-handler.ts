@@ -54,15 +54,19 @@ function matchResource(
 
   let bestMatch: ApiResource | null = null;
   let bestSegments = 0;
+  let bestLiterals = 0;
   for (const resource of resMap.values()) {
     if (!resource.path?.includes('{')) continue;
     if (resource.path.includes('{') && resource.path.includes('+')) continue;
     const regex = pathTemplateToRegex(resource.path);
     if (regex.test(resourcePath)) {
-      const segments = resource.path.split('/').length;
-      if (segments > bestSegments) {
+      const parts = resource.path.split('/');
+      const segments = parts.length;
+      const literals = parts.filter(s => !s.startsWith('{')).length;
+      if (segments > bestSegments || (segments === bestSegments && literals > bestLiterals)) {
         bestMatch = resource;
         bestSegments = segments;
+        bestLiterals = literals;
       }
     }
   }

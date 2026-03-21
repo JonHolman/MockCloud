@@ -95,8 +95,13 @@ export function run(argv: string[]): void {
     .command('mdct <app>')
     .description('Run an MDCT application against MockCloud')
     .action(async (app: string) => {
-      const { runMdctApp } = await import('./commands/mdct.js');
-      await runMdctApp(app);
+      try {
+        const { runMdctApp } = await import('./commands/mdct.js');
+        await runMdctApp(app);
+      } catch (error) {
+        console.error(error instanceof Error ? error.message : error);
+        process.exit(1);
+      }
     });
 
   program.parse(argv);

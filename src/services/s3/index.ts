@@ -463,7 +463,7 @@ function routeRequest(req: ParsedApiRequest): ApiResponse {
 
 export const s3Service: MockServiceDefinition = {
   name: 's3',
-  hostPatterns: ['s3.*.amazonaws.com', 's3.amazonaws.com', '*.s3.*.amazonaws.com', '*.s3.amazonaws.com'],
+  hostPatterns: ['s3.*.amazonaws.com', 's3.amazonaws.com', '*.s3.*.amazonaws.com', '*.s3.amazonaws.com', '*.localhost'],
   protocol: 'rest-xml',
   signingName: 's3',
   handlers: {

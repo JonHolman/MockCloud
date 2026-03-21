@@ -54,7 +54,7 @@ export const runCommand = (
       const paddedPrefix = formattedPrefix(prefix);
       process.stdout.write(`${paddedPrefix} Exit: ${code}\n`);
       if (code !== 0) {
-        reject(code);
+        reject(new Error(`"${prefix}" exited with code ${code}`));
         return;
       }
       resolve();
